@@ -1,0 +1,269 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}ElectroStore - Your Electronics Destination{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="hero-title">Welcome to ElectroStore</h1>
+                <p class="hero-subtitle">Discover the latest electronics and gadgets at unbeatable prices. From smartphones to smart home devices, we have everything you need.</p>
+                <div class="mt-4">
+                    <a href="{% url 'product_list' %}" class="btn btn-light btn-lg me-3">
+                        <i class="fas fa-shopping-bag me-2"></i>Shop Now
+                    </a>
+                    <a href="{% url 'product_list' %}?category=smartphones-accessories" class="btn btn-outline-light btn-lg">
+                        <i class="fas fa-mobile-alt me-2"></i>View Smartphones
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-6 text-center">
+                <i class="fas fa-laptop hero-icon" style="font-size: 8rem; opacity: 0.8;"></i>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Categories Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-12 text-center">
+                <h2 class="fw-bold text-primary mb-3">Shop by Category</h2>
+                <p class="text-muted">Explore our wide range of electronics categories</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            {% for category in categories %}
+            <div class="col-md-4 col-sm-6">
+                <a href="{% url 'product_list' %}?category={{ category.slug }}" class="category-card">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            {% if 'smartphone' in category.name|lower %}
+                                <i class="fas fa-mobile-alt category-icon"></i>
+                            {% elif 'laptop' in category.name|lower or 'computer' in category.name|lower %}
+                                <i class="fas fa-laptop category-icon"></i>
+                            {% elif 'audio' in category.name|lower or 'headphone' in category.name|lower %}
+                                <i class="fas fa-headphones category-icon"></i>
+                            {% elif 'gaming' in category.name|lower %}
+                                <i class="fas fa-gamepad category-icon"></i>
+                            {% elif 'smart' in category.name|lower %}
+                                <i class="fas fa-home category-icon"></i>
+                            {% elif 'camera' in category.name|lower %}
+                                <i class="fas fa-camera category-icon"></i>
+                            {% else %}
+                                <i class="fas fa-microchip category-icon"></i>
+                            {% endif %}
+                            <h5 class="card-title">{{ category.name }}</h5>
+                            <p class="card-text">{{ category.description|truncatewords:10 }}</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Featured Products Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-12 text-center">
+                <h2 class="fw-bold text-primary mb-3">Featured Products</h2>
+                <p class="text-muted">Check out our most popular electronics</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            {% for product in featured_products %}
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <div class="card product-card h-100">
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+                    {% else %}
+                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                            <i class="fas fa-image text-muted" style="font-size: 3rem;"></i>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="card-body d-flex flex-column">
+                        <h6 class="card-title">{{ product.name|truncatechars:50 }}</h6>
+                        <p class="card-text text-muted small flex-grow-1">{{ product.description|truncatewords:15 }}</p>
+                        
+                        <div class="mt-auto">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="product-price">${{ product.price }}</span>
+                                <div class="rating">
+                                    {% with avg_rating=product.get_average_rating %}
+                                        {% for i in "12345" %}
+                                            {% if forloop.counter <= avg_rating %}
+                                                <i class="fas fa-star"></i>
+                                            {% else %}
+                                                <i class="far fa-star"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                        <small class="text-muted ms-1">({{ product.get_review_count }})</small>
+                                    {% endwith %}
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex gap-2">
+                                <a href="{{ product.get_absolute_url }}" class="btn btn-primary btn-sm flex-grow-1">
+                                    <i class="fas fa-eye me-1"></i>View Details
+                                </a>
+                                <button class="btn btn-outline-primary btn-sm add-to-cart-btn" data-product-id="{{ product.id }}" {% if not user.is_authenticated %}data-requires-auth="true"{% endif %} title="{% if not user.is_authenticated %}Login required{% else %}Add to Cart{% endif %}">
+                                    <i class="fas fa-cart-plus"></i>
+                                </button>
+                                <button class="btn btn-outline-danger btn-sm wishlist-btn" data-product-id="{{ product.id }}" {% if not user.is_authenticated %}data-requires-auth="true"{% endif %} title="{% if not user.is_authenticated %}Login required{% else %}Add to Wishlist{% endif %}">
+                                    <i class="far fa-heart"></i>
+                                </button>
+                            </div>
+                            
+                            {% if product.stock_quantity <= 5 and product.stock_quantity > 0 %}
+                                <small class="text-warning mt-1 d-block">
+                                    <i class="fas fa-exclamation-triangle me-1"></i>Only {{ product.stock_quantity }} left!
+                                </small>
+                            {% elif product.stock_quantity == 0 %}
+                                <small class="text-danger mt-1 d-block">
+                                    <i class="fas fa-times-circle me-1"></i>Out of Stock
+                                </small>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="text-center mt-4">
+            <a href="{% url 'product_list' %}" class="btn btn-primary btn-lg">
+                <i class="fas fa-arrow-right me-2"></i>View All Products
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Latest Products Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-12 text-center">
+                <h2 class="fw-bold text-primary mb-3">Latest Arrivals</h2>
+                <p class="text-muted">Discover our newest electronics and gadgets</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            {% for product in latest_products %}
+            <div class="col-lg-3 col-md-6">
+                <div class="card product-card h-100">
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+                    {% else %}
+                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                            <i class="fas fa-image text-muted" style="font-size: 3rem;"></i>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="card-body d-flex flex-column">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h6 class="card-title mb-0">{{ product.name|truncatechars:40 }}</h6>
+                            <span class="badge bg-success">New</span>
+                        </div>
+                        
+                        <p class="card-text text-muted small flex-grow-1">{{ product.description|truncatewords:12 }}</p>
+                        
+                        <div class="mt-auto">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="product-price">${{ product.price }}</span>
+                                <small class="text-muted">{{ product.category.name }}</small>
+                            </div>
+                            
+                            <a href="{{ product.get_absolute_url }}" class="btn btn-outline-primary btn-sm w-100">
+                                <i class="fas fa-eye me-1"></i>View Product
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5 bg-primary text-white">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-3 text-center">
+                <i class="fas fa-shipping-fast mb-3" style="font-size: 3rem;"></i>
+                <h5>Fast Shipping</h5>
+                <p class="mb-0">Free shipping on orders over $50</p>
+            </div>
+            <div class="col-md-3 text-center">
+                <i class="fas fa-shield-alt mb-3" style="font-size: 3rem;"></i>
+                <h5>Secure Payment</h5>
+                <p class="mb-0">Your payment information is safe</p>
+            </div>
+            <div class="col-md-3 text-center">
+                <i class="fas fa-undo mb-3" style="font-size: 3rem;"></i>
+                <h5>Easy Returns</h5>
+                <p class="mb-0">30-day return policy</p>
+            </div>
+            <div class="col-md-3 text-center">
+                <i class="fas fa-headset mb-3" style="font-size: 3rem;"></i>
+                <h5>24/7 Support</h5>
+                <p class="mb-0">Customer support available anytime</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Newsletter Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8 text-center">
+                <h3 class="fw-bold text-primary mb-3">Stay Updated</h3>
+                <p class="text-muted mb-4">Subscribe to our newsletter and get the latest deals and product updates</p>
+                
+                <form class="row g-2 justify-content-center">
+                    <div class="col-md-6">
+                        <input type="email" class="form-control" placeholder="Enter your email address" required>
+                    </div>
+                    <div class="col-md-3">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-paper-plane me-1"></i>Subscribe
+                        </button>
+                    </div>
+                </form>
+                
+                <small class="text-muted mt-2 d-block">
+                    <i class="fas fa-lock me-1"></i>We respect your privacy. Unsubscribe at any time.
+                </small>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Newsletter form submission
+    document.querySelector('form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const email = this.querySelector('input[type="email"]').value;
+        if (email) {
+            showAlert('success', 'Thank you for subscribing! We\'ll keep you updated with the latest deals.');
+            this.reset();
+        }
+    });
+});
+</script>
+{% endblock %}

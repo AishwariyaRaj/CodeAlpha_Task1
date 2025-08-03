@@ -1,0 +1,263 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ product.name }} - ElectroStore{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'product_list' %}">Products</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'product_list' %}?category={{ product.category.slug }}">{{ product.category.name }}</a></li>
+            <li class="breadcrumb-item active">{{ product.name }}</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <!-- Product Image -->
+        <div class="col-md-6">
+            <div class="card">
+                {% if product.image %}
+                    <img src="{{ product.image.url }}" class="card-img-top product-detail-image" alt="{{ product.name }}">
+                {% else %}
+                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center product-detail-image">
+                        <i class="fas fa-image text-muted" style="font-size: 5rem;"></i>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Product Details -->
+        <div class="col-md-6">
+            <div class="product-detail-info">
+                <h1 class="fw-bold text-primary mb-3">{{ product.name }}</h1>
+                
+                <!-- Rating -->
+                <div class="d-flex align-items-center mb-3">
+                    <div class="rating rating-large me-3">
+                        {% with avg_rating=product.get_average_rating %}
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= avg_rating %}
+                                    <i class="fas fa-star"></i>
+                                {% else %}
+                                    <i class="far fa-star"></i>
+                                {% endif %}
+                            {% endfor %}
+                        {% endwith %}
+                    </div>
+                    <span class="text-muted">({{ product.get_review_count }} reviews)</span>
+                </div>
+
+                <!-- Price -->
+                <div class="product-detail-price mb-3">${{ product.price }}</div>
+
+                <!-- Stock Status -->
+                <div class="mb-3">
+                    {% if product.stock_quantity > 10 %}
+                        <span class="stock-status in-stock">
+                            <i class="fas fa-check-circle me-1"></i>In Stock ({{ product.stock_quantity }} available)
+                        </span>
+                    {% elif product.stock_quantity > 0 %}
+                        <span class="stock-status low-stock">
+                            <i class="fas fa-exclamation-triangle me-1"></i>Low Stock ({{ product.stock_quantity }} left)
+                        </span>
+                    {% else %}
+                        <span class="stock-status out-of-stock">
+                            <i class="fas fa-times-circle me-1"></i>Out of Stock
+                        </span>
+                    {% endif %}
+                </div>
+
+                <!-- Description -->
+                <div class="mb-4">
+                    <h5 class="fw-bold mb-2">Description</h5>
+                    <p class="text-muted">{{ product.description }}</p>
+                </div>
+
+                <!-- Category -->
+                <div class="mb-4">
+                    <strong>Category:</strong> 
+                    <a href="{% url 'product_list' %}?category={{ product.category.slug }}" class="text-primary text-decoration-none">
+                        {{ product.category.name }}
+                    </a>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="d-flex gap-2 mb-4">
+                    {% if product.stock_quantity > 0 %}
+                        <button class="btn btn-primary btn-lg flex-grow-1 add-to-cart-btn" data-product-id="{{ product.id }}" {% if not user.is_authenticated %}data-requires-auth="true"{% endif %}>
+                            <i class="fas fa-cart-plus me-2"></i>Add to Cart
+                        </button>
+                    {% else %}
+                        <button class="btn btn-secondary btn-lg flex-grow-1" disabled>
+                            <i class="fas fa-times me-2"></i>Out of Stock
+                        </button>
+                    {% endif %}
+                    
+                    <button class="btn btn-outline-danger btn-lg wishlist-btn {% if in_wishlist %}active{% endif %}" data-product-id="{{ product.id }}" {% if not user.is_authenticated %}data-requires-auth="true"{% endif %}>
+                        {% if user.is_authenticated and in_wishlist %}
+                            <i class="fas fa-heart"></i>
+                        {% else %}
+                            <i class="far fa-heart"></i>
+                        {% endif %}
+                    </button>
+                </div>
+                
+                {% if not user.is_authenticated %}
+                    <div class="alert alert-info mb-4">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <a href="{% url 'login' %}" class="text-decoration-none fw-bold">Login</a> or
+                        <a href="{% url 'register' %}" class="text-decoration-none fw-bold">Register</a> to add items to cart or wishlist
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Related Products -->
+    {% if related_products %}
+    <section class="mt-5">
+        <h3 class="fw-bold text-primary mb-4">Related Products</h3>
+        <div class="row g-4">
+            {% for related_product in related_products %}
+            <div class="col-lg-3 col-md-6">
+                <div class="card product-card h-100">
+                    {% if related_product.image %}
+                        <img src="{{ related_product.image.url }}" class="card-img-top" alt="{{ related_product.name }}">
+                    {% else %}
+                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                            <i class="fas fa-image text-muted" style="font-size: 3rem;"></i>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="card-body d-flex flex-column">
+                        <h6 class="card-title">{{ related_product.name|truncatechars:40 }}</h6>
+                        <p class="card-text text-muted small flex-grow-1">{{ related_product.description|truncatewords:10 }}</p>
+                        <div class="mt-auto">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="product-price">${{ related_product.price }}</span>
+                            </div>
+                            <a href="{{ related_product.get_absolute_url }}" class="btn btn-outline-primary btn-sm w-100">
+                                View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- Reviews Section -->
+    <section class="mt-5">
+        <h3 class="fw-bold text-primary mb-4">Customer Reviews</h3>
+        
+        <!-- Add Review Form -->
+        {% if user.is_authenticated and not user_has_reviewed %}
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Write a Review</h5>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        {{ form.rating.label_tag }}
+                        {{ form.rating }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.comment.label_tag }}
+                        {{ form.comment }}
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-star me-2"></i>Submit Review
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% elif user.is_authenticated and user_has_reviewed %}
+        <div class="alert alert-info mb-4">
+            <i class="fas fa-info-circle me-2"></i>You have already reviewed this product.
+        </div>
+        {% elif not user.is_authenticated %}
+        <div class="alert alert-info mb-4">
+            <i class="fas fa-info-circle me-2"></i>
+            <a href="{% url 'login' %}" class="text-decoration-none">Login</a> to write a review.
+        </div>
+        {% endif %}
+
+        <!-- Reviews List -->
+        {% if reviews %}
+            {% for review in reviews %}
+            <div class="review-card">
+                <div class="review-header">
+                    <div>
+                        <strong class="review-author">{{ review.user.get_full_name|default:review.user.username }}</strong>
+                        <div class="rating">
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= review.rating %}
+                                    <i class="fas fa-star"></i>
+                                {% else %}
+                                    <i class="far fa-star"></i>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <small class="review-date">{{ review.created_at|date:"M d, Y" }}</small>
+                </div>
+                <p class="mt-2 mb-0">{{ review.comment }}</p>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-comments text-muted" style="font-size: 3rem;"></i>
+                <p class="text-muted mt-3">No reviews yet. Be the first to review this product!</p>
+            </div>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize star rating for review form
+    const ratingSelect = document.querySelector('select[name="rating"]');
+    if (ratingSelect) {
+        // Create visual star rating
+        const starContainer = document.createElement('div');
+        starContainer.className = 'star-rating mb-2';
+        
+        for (let i = 1; i <= 5; i++) {
+            const star = document.createElement('span');
+            star.className = 'star';
+            star.innerHTML = '<i class="far fa-star"></i>';
+            star.dataset.rating = i;
+            starContainer.appendChild(star);
+        }
+        
+        ratingSelect.parentNode.insertBefore(starContainer, ratingSelect);
+        ratingSelect.style.display = 'none';
+        
+        // Handle star clicks
+        starContainer.addEventListener('click', function(e) {
+            const star = e.target.closest('.star');
+            if (star) {
+                const rating = parseInt(star.dataset.rating);
+                ratingSelect.value = rating;
+                
+                // Update visual stars
+                starContainer.querySelectorAll('.star').forEach((s, index) => {
+                    const icon = s.querySelector('i');
+                    if (index < rating) {
+                        icon.className = 'fas fa-star';
+                    } else {
+                        icon.className = 'far fa-star';
+                    }
+                });
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Wishlist - ElectroStore{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="fw-bold text-primary mb-4">
+                <i class="fas fa-heart me-2"></i>My Wishlist
+            </h1>
+        </div>
+    </div>
+
+    {% if wishlist_items %}
+        <div class="row g-4">
+            {% for wishlist_item in wishlist_items %}
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <div class="card product-card h-100">
+                    {% if wishlist_item.product.image %}
+                        <img src="{{ wishlist_item.product.image.url }}" class="card-img-top" alt="{{ wishlist_item.product.name }}">
+                    {% else %}
+                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                            <i class="fas fa-image text-muted" style="font-size: 3rem;"></i>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="card-body d-flex flex-column">
+                        <h6 class="card-title">{{ wishlist_item.product.name|truncatechars:50 }}</h6>
+                        <p class="card-text text-muted small flex-grow-1">{{ wishlist_item.product.description|truncatewords:15 }}</p>
+                        
+                        <div class="mt-auto">
+                            <!-- Rating and Price -->
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="product-price">${{ wishlist_item.product.price }}</span>
+                                <div class="rating">
+                                    {% with avg_rating=wishlist_item.product.get_average_rating %}
+                                        {% for i in "12345" %}
+                                            {% if forloop.counter <= avg_rating %}
+                                                <i class="fas fa-star"></i>
+                                            {% else %}
+                                                <i class="far fa-star"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                        <small class="text-muted ms-1">({{ wishlist_item.product.get_review_count }})</small>
+                                    {% endwith %}
+                                </div>
+                            </div>
+                            
+                            <!-- Stock Status -->
+                            {% if wishlist_item.product.stock_quantity <= 5 and wishlist_item.product.stock_quantity > 0 %}
+                                <small class="text-warning mb-2 d-block">
+                                    <i class="fas fa-exclamation-triangle me-1"></i>Only {{ wishlist_item.product.stock_quantity }} left!
+                                </small>
+                            {% elif wishlist_item.product.stock_quantity == 0 %}
+                                <small class="text-danger mb-2 d-block">
+                                    <i class="fas fa-times-circle me-1"></i>Out of Stock
+                                </small>
+                            {% endif %}
+                            
+                            <!-- Added Date -->
+                            <small class="text-muted mb-2 d-block">
+                                <i class="fas fa-calendar me-1"></i>Added {{ wishlist_item.added_at|date:"M d, Y" }}
+                            </small>
+                            
+                            <!-- Action Buttons -->
+                            <div class="d-flex gap-2">
+                                <a href="{{ wishlist_item.product.get_absolute_url }}" class="btn btn-primary btn-sm flex-grow-1">
+                                    <i class="fas fa-eye me-1"></i>View Details
+                                </a>
+                                {% if wishlist_item.product.stock_quantity > 0 %}
+                                    <button class="btn btn-outline-primary btn-sm add-to-cart-btn" data-product-id="{{ wishlist_item.product.id }}">
+                                        <i class="fas fa-cart-plus"></i>
+                                    </button>
+                                {% endif %}
+                                <button class="btn btn-outline-danger btn-sm wishlist-btn active" data-product-id="{{ wishlist_item.product.id }}">
+                                    <i class="fas fa-heart"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Wishlist Actions -->
+        <div class="row mt-4">
+            <div class="col-12 text-center">
+                <div class="d-flex gap-2 justify-content-center">
+                    <button class="btn btn-outline-primary" id="addAllToCart">
+                        <i class="fas fa-cart-plus me-2"></i>Add All to Cart
+                    </button>
+                    <button class="btn btn-outline-danger" id="clearWishlist">
+                        <i class="fas fa-trash me-2"></i>Clear Wishlist
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    {% else %}
+        <!-- Empty Wishlist -->
+        <div class="row">
+            <div class="col-12">
+                <div class="text-center py-5">
+                    <i class="fas fa-heart text-muted" style="font-size: 5rem;"></i>
+                    <h3 class="mt-4 text-muted">Your wishlist is empty</h3>
+                    <p class="text-muted mb-4">Save items you love to your wishlist and never lose track of them.</p>
+                    <a href="{% url 'product_list' %}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-shopping-bag me-2"></i>Start Shopping
+                    </a>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add all to cart functionality
+    const addAllBtn = document.getElementById('addAllToCart');
+    if (addAllBtn) {
+        addAllBtn.addEventListener('click', function() {
+            const addToCartBtns = document.querySelectorAll('.add-to-cart-btn');
+            let addedCount = 0;
+            
+            addToCartBtns.forEach(btn => {
+                const productId = btn.dataset.productId;
+                // Simulate adding to cart
+                setTimeout(() => {
+                    btn.click();
+                    addedCount++;
+                    if (addedCount === addToCartBtns.length) {
+                        showAlert('success', `Added ${addedCount} items to cart!`);
+                    }
+                }, 100 * addedCount);
+            });
+        });
+    }
+    
+    // Clear wishlist functionality
+    const clearBtn = document.getElementById('clearWishlist');
+    if (clearBtn) {
+        clearBtn.addEventListener('click', function() {
+            if (confirm('Are you sure you want to clear your entire wishlist?')) {
+                const wishlistBtns = document.querySelectorAll('.wishlist-btn.active');
+                wishlistBtns.forEach(btn => {
+                    btn.click();
+                });
+            }
+        });
+    }
+});
+</script>
+{% endblock %}
