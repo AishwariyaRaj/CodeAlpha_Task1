@@ -131,76 +131,20 @@ Visit `http://127.0.0.1:8000` to see your e-commerce site!
 - Gaming & Consoles
 - Smart Home & IoT
 - Cameras & Photography
+  
+## Results
 
-### Sample Products
+![Photo1](https://i.postimg.cc/CM7Cn4fD/photo1.png)
 
-#### Smartphones
-- **iPhone 15 Pro** - $999.99
-  - Latest A17 Pro chip, 48MP camera system, titanium design
-- **Samsung Galaxy S24 Ultra** - $1199.99
-  - 200MP camera, S Pen included, 6.8" Dynamic AMOLED display
-- **Google Pixel 8** - $699.99
-  - Advanced AI photography, pure Android experience
+---
 
-#### Laptops
-- **MacBook Air M3** - $1299.99
-  - Apple M3 chip, 13.6" Liquid Retina display, all-day battery
-- **Dell XPS 13** - $999.99
-  - Intel Core i7, 13.4" InfinityEdge display, premium build
-- **Gaming Laptop ASUS ROG** - $1499.99
-  - NVIDIA RTX 4060, AMD Ryzen 7, 144Hz display
+![Photo2](https://i.postimg.cc/s2fGrkwN/Screenshot-827.png)
 
-#### Audio
-- **Sony WH-1000XM5** - $399.99
-  - Industry-leading noise cancellation, 30-hour battery
-- **AirPods Pro (2nd Gen)** - $249.99
-  - Active noise cancellation, spatial audio, MagSafe charging
-- **JBL Charge 5** - $179.99
-  - Portable Bluetooth speaker, IP67 waterproof, 20-hour playtime
+---
 
-## Project Structure
+![Photo3](https://i.postimg.cc/sx5gSmTW/Screenshot-828.png)
 
-```
-ecommerce_site/
-├── manage.py
-├── requirements.txt
-├── README.md
-├── ARCHITECTURE.md
-├── IMPLEMENTATION_GUIDE.md
-├── ecommerce_site/
-│   ├── __init__.py
-│   ├── settings.py
-│   ├── urls.py
-│   └── wsgi.py
-├── store/
-│   ├── __init__.py
-│   ├── admin.py
-│   ├── apps.py
-│   ├── models.py
-│   ├── views.py
-│   ├── urls.py
-│   ├── forms.py
-│   └── migrations/
-├── templates/
-│   ├── base.html
-│   ├── store/
-│   │   ├── index.html
-│   │   ├── product_list.html
-│   │   ├── product_detail.html
-│   │   ├── cart.html
-│   │   └── checkout.html
-│   └── registration/
-│       ├── login.html
-│       └── register.html
-├── static/
-│   ├── css/
-│   │   └── style.css
-│   ├── js/
-│   │   └── main.js
-│   └── images/
-└── media/
-    └── products/
-```
+---
 
 ## Key Features Implementation
 
@@ -234,10 +178,6 @@ ecommerce_site/
 - Order confirmation system
 - Payment status tracking
 
-## Admin Interface
-
-Access the admin interface at `http://127.0.0.1:8000/admin/` with your superuser credentials.
-
 ### Admin Features:
 - Add/edit/delete products
 - Manage categories
@@ -245,71 +185,7 @@ Access the admin interface at `http://127.0.0.1:8000/admin/` with your superuser
 - User management
 - Review moderation
 
-## API Endpoints
 
-### Public Pages
-- `/` - Home page with featured products
-- `/products/` - Product listing with search and filters
-- `/products/<slug>/` - Individual product details
-
-### User Account
-- `/accounts/register/` - User registration
-- `/accounts/login/` - User login
-- `/accounts/logout/` - User logout
-
-### Shopping
-- `/cart/` - Shopping cart view
-- `/cart/add/<product_id>/` - Add product to cart
-- `/checkout/` - Checkout process
-
-## Customization
-
-### Styling
-- Edit `static/css/style.css` for custom styling
-- Colors are defined in CSS variables for easy theming
-- Bootstrap classes can be overridden
-
-### Adding Products
-1. Use Django admin interface
-2. Add product images to `media/products/`
-3. Set appropriate categories and pricing
-
-### Email Configuration
-For production, configure email settings in `settings.py`:
-```python
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'your-smtp-server.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'your-email@example.com'
-EMAIL_HOST_PASSWORD = 'your-password'
-```
-
-## Deployment
-
-### Production Checklist
-1. Set `DEBUG = False` in settings
-2. Configure allowed hosts
-3. Set up PostgreSQL database
-4. Configure static file serving
-5. Set up email backend
-6. Configure security settings
-
-### Environment Variables
-Create a `.env` file for sensitive settings:
-```
-SECRET_KEY=your-secret-key
-DEBUG=False
-DATABASE_URL=postgresql://user:password@localhost/dbname
-```
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
 
 ## License
 
@@ -321,28 +197,6 @@ For support and questions:
 - Check the documentation in `ARCHITECTURE.md` and `IMPLEMENTATION_GUIDE.md`
 - Review the code comments for implementation details
 - Test the functionality using the provided sample data
-
-## Screenshots
-
-### Home Page
-- Featured products grid
-- Category navigation
-- Search functionality
-
-### Product Detail
-- Product images and descriptions
-- Add to cart and wishlist buttons
-- Customer reviews and ratings
-
-### Shopping Cart
-- Item management (add/remove/update)
-- Price calculations
-- Checkout button
-
-### User Dashboard
-- Order history
-- Profile management
-- Wishlist view
 
 ---
 
