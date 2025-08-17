@@ -146,7 +146,7 @@ Visit `http://127.0.0.1:8000` to see your e-commerce site!
 
 ---
 
-## 🛒 E-Commerce Application Demo
+## 🛒 ElectroStore Application Demo
 
 [![Watch the demo](https://img.shields.io/badge/▶️%20Click%20to%20watch%20E--Commerce%20App%20Demo-blue?style=for-the-badge)](https://vimeo.com/1110670006?fl=pl&fe=sh)
 
